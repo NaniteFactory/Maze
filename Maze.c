@@ -189,6 +189,7 @@ void go(stacktype *s, maze *maze) // 한 칸씩 더듬어서 길 찾기
 	point entrance = spot; // 반환할 값 저장 (출발 지점)
 	int count;
 	init_stacktype(s); // 스택 초기화
+	push(s, spot); // 시작 지점 푸시
 	system("cls"); // 화면 청소
 	while (DARR(maze->map, spot.y, spot.x, maze->size.x) != EXIT) // map[spot.y][spot.x] != 출구를 찾을 때까지 반복
 	{
