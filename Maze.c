@@ -183,10 +183,11 @@ point find(maze *maze, int lookingfor)
 	exit(1); 
 }
 
-point go(stacktype *s, maze *maze) // 한 칸씩 더듬어서 길 찾기
+void go(stacktype *s, maze *maze) // 한 칸씩 더듬어서 길 찾기
 {
 	point spot = find(maze, ENTRANCE); // 진행 좌표를 담아둘 변수 선언 // 출발 지점 탐색
 	point entrance = spot; // 반환할 값 저장 (출발 지점)
+	int count;
 	init_stacktype(s); // 스택 초기화
 	system("cls"); // 화면 청소
 	while (DARR(maze->map, spot.y, spot.x, maze->size.x) != EXIT) // map[spot.y][spot.x] != 출구를 찾을 때까지 반복
@@ -245,10 +246,9 @@ point go(stacktype *s, maze *maze) // 한 칸씩 더듬어서 길 찾기
 	display(maze);
 	printf("\n\n<<<<< 목적지 도착 !! >>>>>\n\n\n");
 	stackfree(s);
-	return entrance;
 }
 
-void reset(maze *maze, point entrance) // 미로를 지나온 표시 제거
+void reset(maze *maze) // 미로를 지나온 표시 제거
 {
 	unsigned int i;
 	unsigned int j;
@@ -256,13 +256,12 @@ void reset(maze *maze, point entrance) // 미로를 지나온 표시 제거
 	{
 		for (j = 0; j < maze->size.x; j++)
 		{
-			if (DARR(maze->map, i, j, maze->size.x) > 2)
+			if (DARR(maze->map, i, j, maze->size.x) > 3)
 			{
 				DARR(maze->map, i, j, maze->size.x) = EMPTY;
 			}
 		}
 	}
-	DARR(maze->map, entrance.y, entrance.x, maze->size.x) = ENTRANCE;
 }
 
 ///////////////////////////////// 미로 탐색 함수 ////////////////////////////////////////
@@ -441,7 +440,7 @@ void save(maze *maze, FILE *fout)
 				fprintf(fout, "■"); // 지나갈 수 없는 벽
 				break;
 			case CAMEIN:
-				fprintf(fout, "○"); //입구, 올바른 길 따라 지나온 곳
+				fprintf(fout, "○"); // 올바른 길 따라 지나온 곳
 				break;
 			case WENTBACK:
 				fprintf(fout, "◎"); //지나온 적 있는 막다른 길
@@ -653,13 +652,13 @@ int main(void)
 						if (sel == 1)
 						{
 							temp = 1;
-							entrance = go(&mystack, &maze1);
+							go(&mystack, &maze1);
 							break;
 						}
 						else if (sel == 2)
 						{
 							temp = 2;
-							entrance = go(&mystack, &maze2);
+							go(&mystack, &maze2);
 							break;
 						}
 					} //while
@@ -692,8 +691,8 @@ int main(void)
 							break;
 						}
 					}//while
-					reset(&maze1, entrance);
-					reset(&maze2, entrance);
+					reset(&maze1);
+					reset(&maze2);
 					break;
 				case 9:
 					system("CLS");
