@@ -15,7 +15,7 @@
 
 ///////////////////////////////// 전처리 ////////////////////////////////////////
 
-enum{ EMPTY = 0, EXIT = 1, WALL = 2, ENTRANCE = 3, CAMEIN = 4, WENTBACK = 5 }; // SPACE TYPE // 2 이상인 곳은 지나갈 수 없다 // 지나온 길은 4 이상으로 표시된다
+enum{ EMPTY = 0, EXIT = 1, WALL = 2, ENTRANCE = 3, CAMEIN = 4, WENTBACK = 5, BRANCH = 6 }; // SPACE TYPE // 2 이상인 곳은 지나갈 수 없다 // 지나온 길은 4 이상으로 표시된다
 enum{ UNKNOWN = 0, UP = 1 , DOWN = 2, RIGHT = 3, LEFT = 4 }; // 미로 생성시 사용
 
 typedef struct point
@@ -131,10 +131,13 @@ void display(maze *maze)
 				printf("■"); // 지나갈 수 없는 벽
 				break;
 			case CAMEIN:
-				printf("○"); //입구, 올바른 길 따라 지나온 곳
+				printf("○"); // 올바른 길 따라 지나온 곳
 				break;
 			case WENTBACK:
 				printf("◎"); //지나온 적 있는 막다른 길
+				break;
+			case BRANCH:
+				printf("☆"); //갈림길
 				break;
 			} // switch
 		} // for j
@@ -200,9 +203,13 @@ point go(stacktype *s, maze *maze) // 한 칸씩 더듬어서 길 찾기
 				&& DARR(maze->map, (spot.y - 1), spot.x, maze->size.x) > 1
 				&& DARR(maze->map, spot.y, (spot.x - 1), maze->size.x) > 1
 				&& DARR(maze->map, spot.y, (spot.x + 1), maze->size.x) > 1
-				)//그 칸의 사방 어디에도 빈 공간이 없다면 동그라미 표시를 남긴다. 즉 갈래길에서는 표시하지 않는다.
+				)//그 칸의 사방 어디에도 빈 공간이 없다면 돌아왔다는 표시를 남긴다. 즉 갈래길에서는 표시하지 않는다.
 			{
 				DARR(maze->map, spot.y, spot.x, maze->size.x) = WENTBACK;
+			}
+			else // 전에 왔던 길이지만 다른 방향에 빈 공간이 있는 경우 갈래길이라는 표시를 남긴다.
+			{
+				DARR(maze->map, spot.y, spot.x, maze->size.x) = BRANCH;
 			}
 			break;
 		}//switch
@@ -438,6 +445,9 @@ void save(maze *maze, FILE *fout)
 				break;
 			case WENTBACK:
 				fprintf(fout, "◎"); //지나온 적 있는 막다른 길
+				break;
+			case BRANCH:
+				fprintf(fout, "☆"); //갈림길
 				break;
 			} // switch
 		} // for j
